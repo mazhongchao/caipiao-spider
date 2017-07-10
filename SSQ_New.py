@@ -1,8 +1,9 @@
-#!/usr/bin/python
+#!/usr/local/bin/python
 #-*- coding: utf-8 -*-
 
 import os
 import time
+import datetime
 import urllib2
 import bs4
 from bs4 import BeautifulSoup
@@ -28,7 +29,7 @@ class SSQ_New:
                 print e.reason
 
     def find_local_no(self):
-        local_no = 3000000
+        local_no = '3000000'
         if os.path.isfile('ssq_max.txt'):
             fp = open('ssq_max.txt', 'r')
             local_no = fp.read()
@@ -57,7 +58,7 @@ class SSQ_New:
                 lines.append(line)
             fp.close()
             
-            lines = lines + self.data
+            lines = self.data + lines
             data = '\n'.join(lines)
             
             fp = open('ssq_' + y + '.txt','w')
@@ -90,16 +91,15 @@ class SSQ_New:
                                     pass
                                 else:
                                     if td_count == 2:
-                                        #print local_no, stxt
                                         if int(local_no) < int(stxt):
+                                            print '处理第', stxt, '期...'
                                             if int(stxt) > int(max_no):
                                                 max_no = stxt
                                         else:
-                                            print '没有新数据了\n'
+                                            print '没有新数据了'
                                             self.this_max_no = max_no
-                                            #self.mark_down_no(max_no)
                                             return
-                                info.append(stxt.strip())
+                                    info.append(stxt.strip())
                             else:
                                 ball = []
                                 balls = ''
@@ -124,15 +124,9 @@ class SSQ_New:
                 # info是单个一期的数据:[u'2017-07-06', u'2017078', u'05,07,18,19,22,24|16', u'308,678,006']
                 # 转换成字符串，各项数据之间用制表符(\t)分隔
                 # page_data是一页的多期数据：[u'2017-05-21\t2017058\t01,09,13,22,28,32|11\t338,794,650', u'2017-05-18\t2017057\ ..]
-                page_data.append('\t'.join(info))
-        
-        page_data = page_data[2:len(page_data)-1]# 去掉表头、表尾 
-        #print page_data
-        
-        for e in page_data:
-            self.data.append(e)
-        #print self.data
-        
+                if len(info) > 0:
+                    self.data.append('\t'.join(info))
+
     def run(self):
         print '正在获取双色球彩票数据....'
         url = 'http://kaijiang.zhcw.com/zhcw/html/ssq/list_1.html'

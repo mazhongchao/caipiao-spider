@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/local/python
 #-*- coding: utf-8 -*-
 
 import os
@@ -29,7 +29,7 @@ class DLT_New:
                 print e.reason
 
     def find_local_no(self):
-        local_no = 30000
+        local_no = '30000'
         if os.path.isfile('dlt_max.txt'):
             fp = open('dlt_max.txt', 'r')
             local_no = fp.read()
@@ -60,7 +60,7 @@ class DLT_New:
                 lines.append(line)
             fp.close()
             
-            lines = lines + self.data
+            lines = self.data + lines
             data = '\n'.join(lines)
             
             fp = open('dlt_' + y + '.txt','w')
@@ -85,12 +85,12 @@ class DLT_New:
 
                         if td_order == 1:
                             if int(local_no) < int(stxt):
+                                print '处理第', stxt, '期...'
                                 if int(stxt) > int(max_no):
                                     max_no = stxt # 记下这批处理数据中最大的，即所处理行(tr)中第一个的期数，因为每页期数最大的一期数据排在最前
                             else:
-                                print '没有新数据了\n'
+                                print '没有新数据了'
                                 self.this_max_no = max_no
-                                #self.mark_down_no(max_no)
                                 return
                             info.append(stxt.strip())
                         elif td_order == 2 or td_order == 3 or td_order == 4 or td_order == 5 or td_order == 7:
