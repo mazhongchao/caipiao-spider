@@ -1,4 +1,4 @@
-#!/usr/bin/local/python
+#!/usr/bin/python
 #-*- coding: utf-8 -*-
 
 import os
@@ -73,6 +73,8 @@ class DLT_New:
     def fetch_data(self, page_html):
         local_no = self.find_local_no()
         max_no = local_no
+        
+        
         for tr in page_html.tbody.children:
             info = [] # 存放单个一期的数据
             if isinstance(tr, bs4.element.Tag) == True:
@@ -85,7 +87,7 @@ class DLT_New:
 
                         if td_order == 1:
                             if int(local_no) < int(stxt):
-                                print '处理第', stxt, '期...'
+                                print '处理第', stxt, '期数据...'
                                 if int(stxt) > int(max_no):
                                     max_no = stxt # 记下这批处理数据中最大的，即所处理行(tr)中第一个的期数，因为每页期数最大的一期数据排在最前
                             else:

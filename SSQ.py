@@ -7,7 +7,7 @@ import urllib2
 import bs4
 from bs4 import BeautifulSoup
 
-#抓取双色球
+# 抓取双色球
 class SSQ:
     def __init__(self):
         self.userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
@@ -41,52 +41,49 @@ class SSQ:
             print '无数据，不写入文件...\n'
     
     def fetch_data(self, page_html):
-        i = 0
-        page_data = []
-        for tr in page_html.tbody.children:
-            #print type(tr), tr
+        row = 0
+        trs = page_html.find_all('tr')
+
+        for one_tr in trs:
             info = []
-            if isinstance(tr, bs4.element.Tag) == True:
-                n = 1
-                for td in tr.children:
-                    if isinstance(td, bs4.element.Tag) == True:                            
-                        if n > 4: #只取日期、期数、开奖号、销售额4项数据
-                            break
-                        else:
-                            if isinstance(td, bs4.element.Tag) == True and td.string != None:
-                                stxt = td.string   #处理日期、期数、销售额
-                                info.append(stxt.strip())
+            row = row + 1
+            if row == 1 or row == 2 or row == 23: #忽略表头表尾
+                continue
+            
+            tdc = 1
+            tds = one_tr.find_all('td')
+
+            for td in tds:
+                if tdc > 4: # 只取日期、期数、开奖号、销售额4项数据
+                    break
+                if td.string != None:
+                    print td.string
+                    stxt = td.string
+                    info.append(stxt.strip())
+                else:
+                    if tdc == 3: # 处理中奖号码
+                        ems = td.find_all('em')
+                        em_order = 1
+                        ball = []
+                        balls = ''
+                        for em in ems:
+                            btxt = em.string   # 开奖号码
+                            if em_order == 7:
+                                ball.append('|' + btxt.strip())
+                            elif em_order == 6:
+                                ball.append(btxt.strip())
                             else:
-                                ball = []
-                                balls = ''
-                                c = 1
-                                for em in td.children: # 处理开奖号码
-                                    if isinstance(em, bs4.element.Tag) == True and  em.string != None:
-                                        #print type(em), em.name, '--',em.string,'--',  em.string.strip(),'--'
-                                        btxt = em.string   # 开奖号码
-                                        if c == 7:
-                                            ball.append('|'+btxt.strip())
-                                        elif c == 6:
-                                            ball.append(btxt.strip())
-                                        else:
-                                            ball.append(btxt.strip()+',')
-                                        c = c + 1
-                                balls = ''.join(ball) #红球,...|蓝球
-                                info.append(balls)
-                        n = n + 1
-                # print info
-                # 循环完所有td, 完成一期数据获取
-                # info是单个一期的数据:[u'2017-07-06', u'2017078', u'05,07,18,19,22,24|16', u'308,678,006']
-                # 转换成字符串，各项数据之间用制表符(\t)分隔
-                # page_data是一页的多期数据：[u'2017-05-21\t2017058\t01,09,13,22,28,32|11\t338,794,650', u'2017-05-18\t2017057\ ..]
-                page_data.append('\t'.join(info))
-        
-        page_data = page_data[2:len(page_data)-1]# 去掉表头、表尾 
-        #print page_data
-        
-        for e in page_data:
-            self.data.append(e)
-        #print self.data
+                                ball.append(btxt.strip() + ',')
+                            em_order = em_order + 1
+                        balls = ''.join(ball) # 红球,...|蓝球
+                        info.append(balls)
+                tdc = tdc + 1
+            
+            # 循环完所有td, 完成一期数据获取
+            # info是单个一期的数据:[u'2017-07-06', u'2017078', u'05,07,18,19,22,24|16', u'308,678,006']
+            # 将以上列表中的元素转换成字符串,每期的各项数据之间用制表符(\t)分隔, 并添加到self.data中, self.data是字符串列表
+            if len(info) > 0:
+                self.data.append('\t'.join(info))
         
     def run(self):
         print '正在获取双色球彩票数据....'

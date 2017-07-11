@@ -7,7 +7,7 @@ import urllib2
 import bs4
 from bs4 import BeautifulSoup
 
-#抓取大乐透
+# 抓取大乐透
 class DLT:
     def __init__(self):
         self.userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
