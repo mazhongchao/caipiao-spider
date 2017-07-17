@@ -5,6 +5,7 @@ import os
 import time
 import datetime
 import urllib2
+import logging
 import bs4
 from bs4 import BeautifulSoup
 
@@ -15,6 +16,12 @@ class SSQ_New:
         self.headers = {'User-Agent' : self.userAgent}
         self.data = []
         self.this_max_no = ''
+        self.logger = logging.getLogger('ssq')
+        self.log_formatter = logging.Formatter('%(asctime)s %(levelname)-8s:  %(message)s')
+        self.log_file = logging.FileHandler('ssq.log')
+        self.log_file.setFormatter(self.log_formatter)
+        self.logger.addHandler(self.log_file)
+        self.logger.setLevel(logging.INFO)
     
     def get_content(self, url):
         try:
@@ -27,6 +34,8 @@ class SSQ_New:
                 print e.code
             if hasattr(e,"reason"):
                 print e.reason
+            
+            self.logger.info('REQUEST Fail: '+e.code+','+e.reason)
 
     def find_local_no(self):
         local_no = '3000000'
@@ -66,8 +75,10 @@ class SSQ_New:
             fp.close()
 
             print '写入完成....\n'
+            self.logger.info('写入完成....')
         else:
             print '无数据，不写入文件...\n'
+            self.logger.info('无数据，不写入文件...')
     
     def fetch_data(self, page_html):
         local_no = self.find_local_no()
@@ -90,17 +101,19 @@ class SSQ_New:
                 if tdc > 4: # 只取日期、期数、开奖号、销售额4项数据
                     break
                 if td.string != None:
-                    print td.string
+                    # print td.string
                     stxt = td.string
                     info.append(stxt.strip())
                     
                     if tdc == 2:
                         if int(local_no) < int(stxt):
                             print '处理第', stxt, '期数据...'
+                            self.logger.info('处理第'+str(stxt)+'期数据')
                             if int(stxt) > int(max_no):
                                 max_no = stxt
                         else:
                             print '没有新数据了'
+                            self.logger.info('没有新数据了')
                             self.this_max_no = max_no
                             return
                 else:
@@ -129,15 +142,19 @@ class SSQ_New:
                 self.data.append('\t'.join(info))
 
     def run(self):
-        print '正在获取双色球彩票数据....'
         url = 'http://kaijiang.zhcw.com/zhcw/html/ssq/list_1.html'
+        print '正在获取双色球彩票数据....'
         print url
+        
+        self.logger.info('正在获取双色球最新数据...')
+        self.logger.info(url)
         
         page_html = self.get_content(url)
         soup = BeautifulSoup(page_html, 'html5lib')
         
         self.fetch_data(soup)
-        print '采集完成!\n'
+        print '采集完成!'
+        self.logger.info('采集完成')
 
         self.dump()
         self.mark_down_no(self.this_max_no)
