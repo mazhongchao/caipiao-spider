@@ -64,7 +64,7 @@ class DLT_New:
             fp = open('dlt_' + y + '.txt','r')
             lines = []
             for line in fp:
-                lines.append(line)
+                lines.append(line.strip('\n'))
             fp.close()
             
             lines = self.data + lines

@@ -64,7 +64,7 @@ class SSQ_New:
             fp = open('ssq_' + y + '.txt','r')
             lines = []
             for line in fp:
-                lines.append(line)
+                lines.append(line.strip('\n'))
             fp.close()
             
             lines = self.data + lines
